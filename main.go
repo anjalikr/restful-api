@@ -24,7 +24,7 @@ var id int = 0
 func PostNoteHandler(w http.ResponseWriter, r *http.Request) {
 	var note Note
 	err := json.NewDecoder(r.Body).Decode(&note)
-	
+
 	if err != nil {
 		panic(err)
 	}
@@ -43,9 +43,28 @@ func PostNoteHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(j)
 }
 
+//GET
+func GetNoteHandler(w http.ResponseWriter, r *http.Request) {
+	var notes []Note
+	for _, value := range noteStore {
+		notes = append(notes, value)
+	}
+
+	j, err := json.Marshal(notes)
+	if err != nil {
+		panic(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(j)
+
+}
+
 func main() {
 	r := mux.NewRouter().StrictSlash(false)
 	r.HandleFunc("/api/notes", PostNoteHandler).Methods("POST")
+	r.HandleFunc("/api/notes", GetNoteHandler).Methods("GET")
 
 	server := &http.Server{
 		Addr:    ":8080",
