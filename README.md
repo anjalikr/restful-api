@@ -4,3 +4,4 @@ To install the mux package, run the following command in the terminal:
     HTTP POST
     HTTP GET
     HTTP PUT
+    HTTP DELETE
