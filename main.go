@@ -61,10 +61,31 @@ func GetNoteHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//PUT
+func PutNoteHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	k := vars["id"]
+	var noteToUpdate Note
+	err := json.NewDecoder(r.Body).Decode(&noteToUpdate)
+	if err != nil {
+		panic(err)
+	}
+
+	if note, ok := noteStore[k]; ok {
+		noteToUpdate.CreatedOn = note.CreatedOn
+		delete(noteStore, k)
+		noteStore[k] = noteToUpdate
+	} else {
+		log.Printf("Could not find key of Note %s to delete", k)
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func main() {
 	r := mux.NewRouter().StrictSlash(false)
 	r.HandleFunc("/api/notes", PostNoteHandler).Methods("POST")
 	r.HandleFunc("/api/notes", GetNoteHandler).Methods("GET")
+	r.HandleFunc("/api/notes/{id}", PutNoteHandler).Methods("PUT")
 
 	server := &http.Server{
 		Addr:    ":8080",
